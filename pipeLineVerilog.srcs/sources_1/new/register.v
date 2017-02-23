@@ -54,6 +54,23 @@ end
 assign Dout = data;
 endmodule
 
+module register4(Din, en, clk, Dout, clr);
+input [3:0] Din;
+input en, clk, clr;
+output [3:0] Dout;
+reg [3:0] data;
+always @ (posedge clk or clr) begin
+    if (clr) begin
+        data = 0;
+    end else begin
+        if (en) begin
+            data = Din;
+        end
+    end
+end
+assign Dout = data;
+endmodule
+
 module register1(Din, en, clk, Dout, clr);
 input Din;
 input en, clk, clr;
