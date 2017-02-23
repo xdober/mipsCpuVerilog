@@ -20,28 +20,33 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ALU(Xin, Yin, AluOP, result, isEqual);
-input [31:0] Xin, Yin;
+module ALU(Xin, Yin, AluOP, result, isEqual, reset);
+input signed [31:0] Xin, Yin;
 input [3:0] AluOP;
 output [31:0] reset;
 output isEqual;
 reg [31:0] rzlt, rzlt2;
 always @ ( * ) begin
-    case(AluOP)
-    4'b0000:rzlt      =Xin<<Yin;
-    4'b0001:rzlt      =Xin>>>Yin;
-    4'b0010:rzlt      =Xin>>Yin;
-    4'b0011:{rzlt2,rzlt} =Xin*Yin;
-    4'b0100:rzlt      =Xin/Yin;
-    4'b0101:rzlt      =Xin+Yin;
-    4'b0110:rzlt      =Xin-Yin;
-    4'b0111:rzlt      =Xin&Yin;
-    4'b1000:rzlt      =Xin|Yin;
-    4'b1001:rzlt      =Xin^Yin;
-    4'b1010:rzlt      =~(Xin|Yin);
-    4'b1011:rzlt      =(Xin<Yin)?1:0;
-    4'b1100:rzlt      =({1'b0,Xin}<{1'b0,Yin})?1:0;
-    endcase
+    if (!reset) begin
+        case(AluOP)
+        4'b0000:rzlt      = Xin<<Yin;
+        4'b0001:rzlt      = Xin>>>Yin;
+        4'b0010:rzlt      = Xin>>Yin;
+        4'b0011:{rzlt2,rzlt} = Xin*Yin;
+        4'b0100:rzlt      = Xin/Yin;
+        4'b0101:rzlt      = Xin+Yin;
+        4'b0110:rzlt      = Xin-Yin;
+        4'b0111:rzlt      = Xin&Yin;
+        4'b1000:rzlt      = Xin|Yin;
+        4'b1001:rzlt      = Xin^Yin;
+        4'b1010:rzlt      = ~(Xin|Yin);
+        4'b1011:rzlt      = (Xin<Yin)?1:0;
+        4'b1100:rzlt      =  ({1'b0,Xin}<{1'b0,Yin})?1:0;
+        endcase
+    end else begin
+        rzlt = 0;
+        isEqual = 0;
+    end
 end
 assign result = (rzlt);
 assign isEqual = (Xin==Yin) ? 1 : 0;
