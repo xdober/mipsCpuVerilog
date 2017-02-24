@@ -24,11 +24,11 @@ module ID_EX(ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_me
 input [31:0] ID_gotoLableResult, ID_JumpAddr, ID_IR, ID_Reg1, ID_Reg2, ID_Immediate_EX, ID_PCplus4;
 input [4:0] ID_dstResult, ID_R1_, ID_R2_;
 input [3:0] ID_AluOP;
-input ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_memWrite, ID_WE, ID_Lb, ID_Blez, clk, clr;
+input ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_memWrite, ID_WE, ID_Lb, ID_Blez, clk, clr, ID_AluSrc;
 output [31:0] EX_gotoLableResult, EX_JumpAddr, EX_IR, EX_Reg1, EX_Reg2, EX_Immediate_EX, EX_PCplus4;
 output [4:0] EX_dstResult, EX_R1_, EX_R2_;
 output [3:0] EX_AluOP;
-output EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE, EX_Lb, EX_Blez;
+output EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE, EX_Lb, EX_Blez, EX_AluSrc;
 wire en;
 assign en = (1);
 

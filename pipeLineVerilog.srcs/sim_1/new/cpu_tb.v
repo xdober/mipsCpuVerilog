@@ -3,9 +3,9 @@
 // Company:
 // Engineer:
 //
-// Create Date: 2017/02/23 17:06:56
+// Create Date: 2017/02/24 15:41:26
 // Design Name:
-// Module Name: IF_ID
+// Module Name: cpu_tb
 // Project Name:
 // Target Devices:
 // Tool Versions:
@@ -20,11 +20,18 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module IF_ID(IF_inst, IF_PCplus4, en, clk, clr, ID_inst, ID_PCplus4);
-input [31:0] IF_inst, IF_PCplus4;
-input en, clk, clr;
-output [31:0] ID_inst, ID_PCplus4;
-
-register32 regI(IF_inst, en, clk, ID_inst, clr);
-register32 regPC4(IF_PCplus4, en, clk, ID_PCplus4, clr);
+module cpu_tb();
+reg clkin, reset, power;
+completeCPU cpu(clkin, reset, power);
+initial begin
+    #200000 $finish;
+end
+initial begin
+    for(clkin = 0; 1; ) #1 clkin = clkin + 1;
+end
+initial begin
+    reset = 0;
+    #2 reset = 1;
+    #4 reset = 0;
+end
 endmodule

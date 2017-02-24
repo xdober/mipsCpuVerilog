@@ -31,10 +31,10 @@ wire Add, Addi, Addiu, Addu, And, Andi, Sll, Sra, Srl, Sub, Or, Ori, Nor, Lw, Sw
 //µ÷ÓÃdecoderÄ£¿é
 decoder dcr (op, func, judge_blez, Add, Addi, Addiu, Addu, And, Andi, Sll, Sra, Srl, Sub, Or, Ori, Nor, Lw, Sw, Beq, Bne, Slt,  Slti, Sltu, J, Jal, Jr, Syscall, Xor, Sltiu, Lb, Blez, reset);
 
-assign ID_Alu_op[3] = (!reset) & (Nor | Slt | Slti | Sltu | Or | Ori | Blez);
-assign ID_Alu_op[2] = (!reset) & (Add | Lw | Addi | Sw | Addiu | Addu | And | Andi | Sltu | Sub | Lb);
-assign ID_Alu_op[1] = (!reset) & (Nor | Slt | And | Slti | Andi | Sri | Sub | Blez);
-assign ID_Alu_op[0] = (!reset) & (Add | Lw | Addi | Sw | Addiu | Addu | Slt | And | Slti | Andi | Sra | Blez | Lb);
+assign ID_ALU_op[3] = (!reset) & (Nor | Slt | Slti | Sltu | Or | Ori | Blez);
+assign ID_ALU_op[2] = (!reset) & (Add | Lw | Addi | Sw | Addiu | Addu | And | Andi | Sltu | Sub | Lb);
+assign ID_ALU_op[1] = (!reset) & (Nor | Slt | And | Slti | Andi | Srl | Sub | Blez);
+assign ID_ALU_op[0] = (!reset) & (Add | Lw | Addi | Sw | Addiu | Addu | Slt | And | Slti | Andi | Sra | Blez | Lb);
 assign ID_ext_u     = (!reset) & (Andi | Ori);
 assign ID_alu_src   = (!reset) & (Addiu | Sll | Srl | Lw | Addi | Sw | Slti | Andi | Sra | Ori | Lb);
 assign ID_s_i       = (!reset) & (Srl | Sra | Sll);

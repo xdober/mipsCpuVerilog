@@ -25,7 +25,7 @@ input [9:0] Addr;
 output [31:0] Dout;
 reg [31:0] romUnit[0:1023];
 initial begin
-    $readmemh("benchmark.hex",romUnit,0,1023);
+    $readmemh("F:/Documents/pipeLineVerilog/pipeLineVerilog.srcs/sources_1/new/benchmarks.hex",romUnit);
 end
 assign Dout = romUnit[Addr];
 endmodule

@@ -20,7 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Foreard(R1_, R2_, RwPre_, RwPrePre_, wePre, wePrePre, memtoRegPre, R1_FW, R2_FW);
+module Forward(R1_, R2_, RwPre_, RwPrePre_, wePre, wePrePre, memtoRegPre, R1_FW, R2_FW);
 input [4:0] R1_, R2_, RwPre_, RwPrePre_;
 input wePre, wePrePre, memtoRegPre;
 output [1:0] R1_FW, R2_FW;

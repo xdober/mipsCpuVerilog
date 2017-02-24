@@ -20,8 +20,8 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module Bubble(clk, LW_LB, R1_, R2_, RW_Mem, RegWritePre, IF_en, ID_en, EX_clr, BubbleNum);
-input clk, LW_LB, RwPre_;
+module Bubble(clk, LW_LB, R1_, R2_, RW_Mem, IF_en, ID_en, EX_clr, BubbleNum, reset);
+input clk, LW_LB, reset;
 input [4:0] R1_, R2_, RW_Mem;
 output IF_en, ID_en, EX_clr;
 output [31:0] BubbleNum;
@@ -34,18 +34,22 @@ assign RRblb = (R1blb | R2blb);
 always @ (negedge clk) begin
     if (!reset) begin
         clr_reg = RRblb;
+    end else begin
+        clr_reg = 0;
     end
 end
 always @ (posedge clk) begin
     if (!reset) begin
-        count = count+1;
+        if (RRblb) begin
+            count = count+1;
+        end
     end else begin
         count = 0;
     end
 end
 assign EX_clr = (clk & clr_reg);
 assign BubbleNum = (count);
-assign IF_en = (~RRblb);
-assign ID_en = (~RRblb);
+assign IF_en = reset ? 1 : (!RRblb);
+assign ID_en = reset ? 1 : (!RRblb);
 
 endmodule
