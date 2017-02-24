@@ -23,9 +23,9 @@
 module ROM(Addr, Dout);
 input [9:0] Addr;
 output [31:0] Dout;
-reg [31:0] romUnity[0:1023];
+reg [31:0] romUnit[0:1023];
 initial begin
-    $readmemh("benchmark.hex",romUnity,0,1023);
+    $readmemh("benchmark.hex",romUnit,0,1023);
 end
-assign Dout = romUnity[Addr];
+assign Dout = romUnit[Addr];
 endmodule

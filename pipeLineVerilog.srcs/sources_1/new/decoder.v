@@ -20,10 +20,11 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module decoder(op, func, Add, Addi, Addiu, Addu, And, Andi, Sll, Sra, Srl, Sub, Or, Ori, Nor, Lw, Sw, Beq, Bne, Slt,  Slti, Sltu, J, Jal, Jr, Syscall, reset);
+module decoder(op, func, judge_blez, Add, Addi, Addiu, Addu, And, Andi, Sll, Sra, Srl, Sub, Or, Ori, Nor, Lw, Sw, Beq, Bne, Slt,  Slti, Sltu, J, Jal, Jr, Syscall, Xor, Sltiu, Lb, Blez, reset);
 input [5:0] op, func;
+input [4:0] judge_blez;
 input reset;
-output Add, Addi, Addiu, Addu, And, Andi, Sll, Sra, Srl, Sub, Or, Ori, Nor, Lw, Sw, Beq, Bne, Slt,  Slti, Sltu, J, Jal, Jr, Syscall;
+output Add, Addi, Addiu, Addu, And, Andi, Sll, Sra, Srl, Sub, Or, Ori, Nor, Lw, Sw, Beq, Bne, Slt,  Slti, Sltu, J, Jal, Jr, Syscall, Xor, Sltiu, Lb, Blez;
 
 assign Add     = ((op==0) && (func==6'b100000) && !reset) ?1 : 0;
 assign Addi    = (op==6'b001000 && !reset) ? 1 : 0;
@@ -49,5 +50,9 @@ assign J       = (op==6'b000010 && !reset) ? 1 : 0;
 assign Jal     = (op==6'b000011 && !reset) ? 1 : 0;
 assign Jr      = (op==0 && func==6'b001000 && !reset) ? 1 : 0;
 assign Syscall = (op==0 && func==6'b001100 && !reset) ? 1 : 0;
+assign Xor     = (op==0 && func==6'b100110 && !reset) ? 1 : 0;
+assign Sltiu   = (op==6'b001011 && !reset) ? 1 : 0;
+assign Lb      = (op==0'b100000 && !reset) ? 1 : 0;
+assign Blez    = (op==6'b000110 && judge_blez==0 && !reset) ? 1 : 0;
 
 endmodule

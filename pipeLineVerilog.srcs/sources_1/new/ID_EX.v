@@ -20,15 +20,15 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ID_EX(ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_memWrite, ID_WE, ID_AluSrc, ID_AluOP,  ID_dstResult, ID_gotoLableResult, ID_R1_, ID_R2_, ID_JumpAddr, ID_IR, ID_Reg1, ID_Reg2, ID_Immediate_EX, ID_PCplus4, clk, clr, EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE, EX_AluSrc, EX_dstResult, EX_gotoLableResult, EX_R1_, EX_R2_, EX_JumpAddr, EX_IR, EX_Reg1, EX_Reg2, EX_Immediate_EX, EX_PCplus4);
+module ID_EX(ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_memWrite, ID_WE, ID_AluSrc, ID_AluOP, ID_Lb, ID_Blez, ID_dstResult, ID_gotoLableResult, ID_R1_, ID_R2_, ID_JumpAddr, ID_IR, ID_Reg1, ID_Reg2, ID_Immediate_EX, ID_PCplus4, clk, clr, EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE, EX_AluSrc, EX_AluOP, EX_Lb, EX_Blez, EX_dstResult, EX_gotoLableResult, EX_R1_, EX_R2_, EX_JumpAddr, EX_IR, EX_Reg1, EX_Reg2, EX_Immediate_EX, EX_PCplus4);
 input [31:0] ID_gotoLableResult, ID_JumpAddr, ID_IR, ID_Reg1, ID_Reg2, ID_Immediate_EX, ID_PCplus4;
 input [4:0] ID_dstResult, ID_R1_, ID_R2_;
 input [3:0] ID_AluOP;
-input ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_memWrite, ID_WE, clk, clr;
+input ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg, ID_memWrite, ID_WE, ID_Lb, ID_Blez, clk, clr;
 output [31:0] EX_gotoLableResult, EX_JumpAddr, EX_IR, EX_Reg1, EX_Reg2, EX_Immediate_EX, EX_PCplus4;
 output [4:0] EX_dstResult, EX_R1_, EX_R2_;
 output [3:0] EX_AluOP;
-output EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE;
+output EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE, EX_Lb, EX_Blez;
 wire en;
 assign en = (1);
 
@@ -52,5 +52,7 @@ register1 regBeq(ID_beq, en, clk, EX_beq, clr);
 register1 regMtoReg(ID_memToReg, en, clk, EX_memToReg, clr);
 register1 regMWrite(ID_memWrite, en, clk, EX_memWrite, clr);
 register1 regWE(ID_WE, en, clk, EX_WE, clr);
+register1 regLb(ID_Lb, en, clk, EX_Lb, clr);
+register1 regBlez(ID_Blez, en, clk, EX_Blez, clr);
 
 endmodule

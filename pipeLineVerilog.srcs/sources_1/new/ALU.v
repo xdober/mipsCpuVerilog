@@ -20,10 +20,10 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module ALU(Xin, Yin, AluOP, result, isEqual, reset);
+module ALU(Xin, Yin, AluOP, result, isEqual);
 input signed [31:0] Xin, Yin;
 input [3:0] AluOP;
-output [31:0] reset;
+output [31:0] result;
 output isEqual;
 reg [31:0] rzlt, rzlt2;
 always @ ( * ) begin
