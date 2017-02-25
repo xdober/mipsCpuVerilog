@@ -28,12 +28,12 @@ output [31:0] Reg1, Reg2, v0Value, a0Value, s2value, raValue;
 reg [31:0] register[0:31];
 integer i;
 
-assign Reg1        = reset?0:(register[Reg1_]);
-assign Reg2        = reset?0:(register[Reg2_]);
-assign v0Value     = reset?0:(register[2]);
-assign a0Value     = reset?0:(register[4]);
-assign s2value     = reset?0:(register[18]);
-assign raValue     = reset?0:(register[31]);
+assign Reg1        = (register[Reg1_]);
+assign Reg2        = (register[Reg2_]);
+assign v0Value     = (register[2]);
+assign a0Value     = (register[4]);
+assign s2value     = (register[18]);
+assign raValue     = (register[31]);
 
 always @ (negedge clk) begin
     if (reset) begin

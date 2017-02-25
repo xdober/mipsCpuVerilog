@@ -23,7 +23,7 @@
 module signed_16to32(Din, Dout);
 input [15:0] Din;
 output [31:0] Dout;
-assign Dout = (Din[15]?{16'hff,Din}:{16'h00,Din});
+assign Dout = (Din[15]?{16'hffff,Din}:{16'h00,Din});
 endmodule
 
 module unsigned_16to32(Din, Dout);
@@ -35,7 +35,7 @@ endmodule
 module signed_8to32(Din, Dout);
 input [7:0] Din;
 output [31:0] Dout;
-assign Dout = (Din[7]?{24'hfff,Din}:{24'h000,Din});
+assign Dout = (Din[7]?{24'hffffff,Din}:{24'h000,Din});
 endmodule
 
 module unsigned_5to32(Din, Dout);

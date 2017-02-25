@@ -27,16 +27,17 @@ wire clk;
 
 //IF variables
 wire [31:0] PCFromJump, PCFromJr, PCFromBranch, PC_IF, IF_PCplus4, IF_ins;
+reg [31:0] PC_reg;
 
 //ID variables
 wire [31:0] ID_ins, ID_PCplus4, ID_JumpAddr, ID_imme16_EX_S, ID_imme16_EX_U,
     ID_imme5_EX_U, ID_gotoLableResult, ID_Reg1, ID_Reg2, v0Value, a0Value,
-    s2value, raValue;
+    s2value, raValue, ID_Immediate_EX;
 wire [15:0] ID_imme16;
 wire [4:0] ID_imme5, ID_rt, ID_rs, ID_rd, ID_R1_, ID_R2_, ID_dstResult;
-wire [3:0] ID_ALU_op;
+wire [3:0] ID_AluOP;
 wire clr_ID, ID_ext_u, ID_alu_src, ID_s_i, ID_reg_dst, ID_reg_write,
-    ID_mem_write, ID_memtoReg, ID_Beq, ID_Bne, ID_J, ID_Jal, ID_Jr, ID_Syscall,
+    ID_mem_write, ID_memtoReg, ID_Beq, ID_Bne, ID_j, ID_jal, ID_jr, ID_Syscall,
     ID_Blez, ID_Lb;
 
 //EX variables
@@ -48,7 +49,8 @@ wire [3:0] EX_AluOP;
 wire [1:0] Reg1_OP, Reg2_OP;
 wire EX_clr, EX_syscall, EX_jr, EX_jal, EX_j, EX_bne, EX_beq, EX_memToReg,
     EX_memWrite, EX_WE, EX_AluSrc, EX_Lb, EX_Blez, EX_JorJRorJAL, EX_isEqual,
-    branchNum, B_clr_IF_ID;
+    branchNum, clr_IF_ID, branchSuccess;
+reg clr_IF_ID_reg, EX_JorJRorJAL_reg;
 
 //MEM variables
 wire [31:0] MEM_IR, MEM_AluResult, MEM_memDate, MEM_PCplus4, memDout, MEM_Din,
@@ -66,25 +68,37 @@ wire WB_syscall, WB_Jal, WB_WE;
 //Bubble & Forward & clk generate variables
 wire [31:0] BubbleNum;
 wire en_PC, en_ID, SyscallAddOne;
+reg [31:0] clk_num;
 
 //IF
 assign PCFromJump = (EX_j || EX_jal) ? EX_JumpAddr : IF_PCplus4;
 assign PCFromJr = (EX_jr) ? JrAddr : PCFromJump;
-assign PCFromBranch = (B_clr_IF_ID) ? EX_gotoLableResult : PCFromJr;
-register32 regPC(PCFromBranch, en_PC, clk, PC_IF, reset);
+assign PCFromBranch = (branchSuccess) ? EX_gotoLableResult : PCFromJr;
+always @ (posedge clk) begin
+    if (reset) begin
+        PC_reg = 0;
+    end else begin
+        if (en_PC) begin
+            PC_reg = PCFromBranch;
+        end
+    end
+end
+assign PC_IF = (PC_reg);
+
+//register32 regPC(PCFromBranch, en_PC, clk, PC_IF, reset);
 assign IF_PCplus4 = (4 + PC_IF);
 ROM iROM(PC_IF[11:2], IF_ins);
 
 
 //IF --> ID
 IF_ID if_id(IF_ins, IF_PCplus4, en_ID, clk, clr_ID, ID_ins, ID_PCplus4);
-assign clr_ID = (EX_JorJRorJAL | B_clr_IF_ID | reset);
+assign clr_ID = (EX_JorJRorJAL | clr_IF_ID | reset);
 
 
 //ID
-CtlUnity ctl(ID_ins[31:26], ID_ins[5:0], ID_ins[20:16], ID_ALU_op, ID_ext_u,
+CtlUnity ctl(ID_ins[31:26], ID_ins[5:0], ID_ins[20:16], ID_AluOP, ID_ext_u,
     ID_alu_src, ID_s_i, ID_reg_dst, ID_reg_write, ID_mem_write, ID_memtoReg,
-    ID_Beq, ID_Bne, ID_J, ID_Jal, ID_Jr, ID_Syscall, ID_Lb, ID_Blez, reset);
+    ID_Beq, ID_Bne, ID_j, ID_jal, ID_jr, ID_Syscall, ID_Lb, ID_Blez);
 assign ID_rt = (ID_ins[20:16]);
 assign ID_rs = (ID_ins[25:21]);
 assign ID_rd = (ID_ins[15:11]);
@@ -93,7 +107,7 @@ assign ID_R1_ = (ID_s_i) ? ID_rt : ID_rs;
 assign ID_R2_ = (ID_rt);
 
 assign ID_imme16 = (ID_ins[15:0]);
-assign ID_JumpAddr = ({ID_PCplus4[31:28],ID_ins[27:2],2'b00});
+assign ID_JumpAddr = ({ID_PCplus4[31:28],ID_ins[25:0],2'b00});
 assign ID_imme5 = (ID_ins[10:6]);
 signed_16to32 sgn16_1(ID_imme16, ID_imme16_EX_S);
 unsigned_16to32 usgn16_1(ID_imme16, ID_imme16_EX_U);
@@ -106,36 +120,56 @@ regfile regfile0(ID_R1_, ID_R2_, WB_RW, WB_Din, WB_WE, clk, ID_Reg1, ID_Reg2,
     );
 
 //ID --> EX
-assign EX_clrclr = EX_clr | reset;
-ID_EX id_ex(ID_syscall, ID_jr, ID_jal, ID_j, ID_bne, ID_beq, ID_memToReg,
-    ID_memWrite, ID_WE, ID_AluSrc, ID_AluOP, ID_Lb, ID_Blez, ID_dstResult,
-    ID_gotoLableResult, ID_R1_, ID_R2_, ID_JumpAddr, ID_IR, ID_Reg1, ID_Reg2,
-    ID_Immediate_EX, ID_PCplus4, clk, EX_clr, EX_syscall, EX_jr, EX_jal, EX_j,
+assign EX_clrclr = (EX_clr | clr_IF_ID | EX_JorJRorJAL | reset);
+ID_EX id_ex(ID_Syscall, ID_jr, ID_jal, ID_j, ID_Bne, ID_Beq, ID_memtoReg,
+    ID_mem_write, ID_reg_write, ID_alu_src, ID_AluOP, ID_Lb, ID_Blez, ID_dstResult,
+    ID_gotoLableResult, ID_R1_, ID_R2_, ID_JumpAddr, ID_ins, ID_Reg1, ID_Reg2,
+    ID_Immediate_EX, ID_PCplus4, clk, EX_clrclr, EX_syscall, EX_jr, EX_jal, EX_j,
     EX_bne, EX_beq, EX_memToReg, EX_memWrite, EX_WE, EX_AluSrc, EX_AluOP, EX_Lb,
     EX_Blez, EX_dstResult, EX_gotoLableResult, EX_R1_, EX_R2_, EX_JumpAddr,
     EX_IR, EX_Reg1, EX_Reg2, EX_Immediate_EX, EX_PCplus4
     );
 
 //EX
-assign EX_JorJRorJAL = (EX_j | EX_jal | EX_jr);
+always @ (negedge clk) begin//Jump ctrl
+    if (reset) begin
+        EX_JorJRorJAL_reg = 0;
+    end else begin
+        EX_JorJRorJAL_reg = (EX_j | EX_jal | EX_jr);
+    end
+end
+assign EX_JorJRorJAL = (EX_JorJRorJAL_reg & clk);
+
 assign ALU_Xin = (Reg1_OP[1]) ? WB_Din : (Reg1_OP[0] ? MEM_AluResult : EX_Reg1);
 assign JrAddr = (ALU_Xin);
 assign EX_memDate = (Reg2_OP[1]) ? WB_Din : (Reg2_OP[0] ? MEM_AluResult : EX_Reg2);
 assign Alu_Yin = (EX_AluSrc) ? EX_Immediate_EX : EX_memDate;
 ALU alu(ALU_Xin, Alu_Yin, EX_AluOP, EX_AluResult, EX_isEqual, reset);
-assign branchNum = ((EX_bne & !EX_isEqual) | (EX_beq & EX_isEqual) | (EX_Blez & (EX_isEqual | EX_AluResult[0])) );
-register1 branch(branchNum, 1, !clk, B_clr_IF_ID, 0);
+
+assign branchNum = ((EX_bne & !EX_isEqual) | (EX_beq & EX_isEqual) | (EX_Blez & (EX_isEqual | EX_AluResult[0])) ); //branch ctrl
+assign branchSuccess = (branchNum);
+always @ (negedge clk) begin
+    if (reset) begin
+        clr_IF_ID_reg = 0;
+    end else begin
+        clr_IF_ID_reg = branchNum;
+    end
+end
+assign clr_IF_ID = (clr_IF_ID_reg & clk);
+
+
+//register1 branch(branchNum, 1, !clk, clr_IF_ID, 0);
 
 //EX --> MEM
-EX_MEM ex_mem(EX_syscall, EX_Jal, EX_memToReg, EX_memWrite, EX_WE, EX_Lb,
+EX_MEM ex_mem(EX_syscall, EX_jal, EX_memToReg, EX_memWrite, EX_WE, EX_Lb,
     EX_dstResult, EX_IR, EX_AluResult, EX_memDate, EX_PCplus4, clk, reset, MEM_syscall,
     MEM_Jal, MEM_memToReg, MEM_memWrite, MEM_WE, MEM_Lb, MEM_dstResult, MEM_IR,
     MEM_AluResult, MEM_memDate, MEM_PCplus4
     );
 
 //MEM
-assign memAddr = (EX_AluResult[11:2]);
-RAM dRAM(memAddr, MEM_memDate, MEM_WE, clk, reset, memDout);
+assign memAddr = (MEM_AluResult[11:2]);
+RAM dRAM(memAddr, MEM_memDate, MEM_memWrite, clk, reset, memDout);
 assign MEM_RW = (MEM_Jal) ? 5'h1f : MEM_dstResult;
 assign memDataByte = (MEM_AluResult[1]) ?
     (MEM_AluResult[0] ? memDout[31:24] : memDout[23:16]) :
@@ -154,7 +188,7 @@ MEM_WB mem_wb(MEM_syscall, MEM_Jal, MEM_WE, MEM_RW, MEM_Din, MEM_IR, MEM_PCplus4
 assign WB_Din = (WB_Jal) ? WB_PCplus4 : WB_Dout;
 
 //Forward
-Forward fw(EX_R1_, EX_R2_, MEM_dstResult, MEM_RW, MEM_WE, WB_WE, MEM_memToReg,
+Forward fw(EX_R1_, EX_R2_, MEM_dstResult, WB_RW, MEM_WE, WB_WE, MEM_memToReg,
     Reg1_OP, Reg2_OP
     );
 
@@ -164,6 +198,13 @@ Bubble bubl(clk, EX_memToReg, ID_R1_, ID_R2_, EX_dstResult, en_PC, en_ID,
     );
 
 //ins counting
+always @ (posedge clk or posedge reset) begin
+    if (reset) begin
+        clk_num = 0;
+    end else begin
+        clk_num = clk_num + 1;
+    end
+end
 
 //clk generate
 clkgenerate clkgnrt(v0Value, WB_syscall, clkin, SyscallAddOne, clk);

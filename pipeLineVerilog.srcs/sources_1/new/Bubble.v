@@ -28,8 +28,8 @@ output [31:0] BubbleNum;
 wire R1blb, R2blb, RRblb;
 reg [31:0] count;
 reg clr_reg;
-assign R1blb = (LW_LB & R1_ & RW_Mem==R1_);
-assign R2blb = (LW_LB & R2_ & RW_Mem==R2_);
+assign R1blb = (LW_LB && R1_ && RW_Mem==R1_);
+assign R2blb = (LW_LB && R2_ && RW_Mem==R2_);
 assign RRblb = (R1blb | R2blb);
 always @ (negedge clk) begin
     if (!reset) begin

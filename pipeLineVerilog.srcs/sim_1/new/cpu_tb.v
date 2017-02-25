@@ -24,14 +24,14 @@ module cpu_tb();
 reg clkin, reset, power;
 completeCPU cpu(clkin, reset, power);
 initial begin
-    #200000 $finish;
+    #5000 $finish;
 end
 initial begin
     for(clkin = 0; 1; ) #1 clkin = clkin + 1;
 end
 initial begin
-    reset = 0;
+    reset    = 0;
     #2 reset = 1;
-    #4 reset = 0;
+    #10 reset = 0;
 end
 endmodule
