@@ -20,11 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module completeCPU(input clk_100mhz, input reset, input power,
-    output reg [7:0] location, output reg [7:0] temp);
-
+module completeCPU(clkin, reset, power, a0Value, clk_num, load_use_num, RAM_addr, RAM_data);
+input clkin, reset, power;
+input [3:0] RAM_addr;
+output [31:0] a0Value, clk_num, load_use_num, RAM_data;
 //global variables
-wire clkin, clk, flash;
+wire clk;
 
 //IF variables
 wire [31:0] PCFromJump, PCFromJr, PCFromBranch, PC_IF, IF_PCplus4, IF_ins;
@@ -32,7 +33,7 @@ reg [31:0] PC_reg;
 
 //ID variables
 wire [31:0] ID_ins, ID_PCplus4, ID_JumpAddr, ID_imme16_EX_S, ID_imme16_EX_U,
-    ID_imme5_EX_U, ID_gotoLableResult, ID_Reg1, ID_Reg2, v0Value, a0Value,
+    ID_imme5_EX_U, ID_gotoLableResult, ID_Reg1, ID_Reg2, v0Value,
     s2value, raValue, ID_Immediate_EX;
 wire [15:0] ID_imme16;
 wire [4:0] ID_imme5, ID_rt, ID_rs, ID_rd, ID_R1_, ID_R2_, ID_dstResult;
@@ -67,14 +68,11 @@ wire [4:0] WB_RW;
 wire WB_syscall, WB_Jal, WB_WE;
 
 //Bubble & Forward & clk generate variables
-wire [31:0] BubbleNum, clk_num, load_use_num;
 wire en_PC, en_ID, SyscallAddOne;
-reg [31:0] clk_num_no_syscall, branch_num, jump_num;
+wire [31:0] BubbleNum;
+reg [31:0] clk_num_no_syscall;
+reg[31:0] branch_num, jump_num;
 
-//Digital display variables
-wire [3:0] a0[0:7];
-wire [7:0] display[0:7];
-reg [2:0] k;
 
 //IF
 assign PCFromJump = (EX_j || EX_jal) ? EX_JumpAddr : IF_PCplus4;
@@ -173,7 +171,7 @@ EX_MEM ex_mem(EX_syscall, EX_jal, EX_memToReg, EX_memWrite, EX_WE, EX_Lb,
 
 //MEM
 assign memAddr = (MEM_AluResult[11:2]);
-RAM dRAM(memAddr, MEM_memDate, MEM_memWrite, clk, reset, memDout);
+RAM dRAM(memAddr, MEM_memDate, MEM_memWrite, clk, reset, memDout, RAM_addr, RAM_data);
 assign MEM_RW = (MEM_Jal) ? 5'h1f : MEM_dstResult;
 assign memDataByte = (MEM_AluResult[1]) ?
     (MEM_AluResult[0] ? memDout[31:24] : memDout[23:16]) :
@@ -222,93 +220,9 @@ assign load_use_num = (BubbleNum);
 
 
 //clk generate
-Hz hz(clk_100mhz, clkin);
 clkgenerate clkgnrt(v0Value, WB_syscall, clkin, SyscallAddOne, clk);
 
-//16bits Digital display
-assign {a0[7], a0[6], a0[5], a0[4], a0[3], a0[2], a0[1], a0[0]} = (a0Value);
-LED led0(a0[0], display[0]);
-LED led1(a0[1], display[1]);
-LED led2(a0[2], display[2]);
-LED led3(a0[3], display[3]);
-LED led4(a0[4], display[4]);
-LED led5(a0[5], display[5]);
-LED led6(a0[6], display[6]);
-LED led7(a0[7], display[7]);
-always @(posedge flash) begin
-	k = k + 1;
+initial begin
+    PC_reg = 0;
 end
-always @( k ) begin
-	case ( k )
-	3'b000:begin
-            if(!reset) begin
-                location = 8'b11111110;
-                temp=display[0];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b001:begin
-            if(!reset) begin
-                location = 8'b11111101;
-                temp=display[1];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b010:begin
-            if(!reset) begin
-                location = 8'b11111011;
-                temp=display[2];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b011:begin
-            if(!reset) begin
-                location = 8'b11110111;
-                temp=display[3];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b100:begin
-            if(!reset) begin
-                location = 8'b11101111;
-                temp=display[4];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b101:begin
-            if(!reset) begin
-                location = 8'b11011111;
-                temp=display[5];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b110:begin
-            if(!reset) begin
-                location = 8'b10111111;
-                temp=display[6];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	3'b111:begin
-            if(!reset) begin
-                location = 8'b01111111;
-                temp=display[7];
-            end else begin
-                location = 8'b11111111;
-            end
-        end
-	default:begin
-            location = 8'b00000000;
-            temp = 8'b00000000;
-        end
-	endcase
-end
-
 endmodule

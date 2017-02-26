@@ -20,16 +20,17 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module RAM(Addr, Din, WE, clk, reset, Dout);
+module RAM(Addr, Din, WE, clk, reset, Dout, RAM_addr, RAM_data);
 input [9:0] Addr;
+input [3:0] RAM_addr;
 input [31:0] Din;
 input WE, clk, reset;
-output [31:0] Dout;
+output [31:0] Dout, RAM_data;
 integer i;
 
 reg [31:0] ramUnit[0:1023];
 
-always @ (posedge clk or reset) begin
+always @ (posedge clk or posedge reset) begin
     if (reset) begin
         for(i = 0;i<1024;i = i + 1) ramUnit[i] = 0;
     end else begin
@@ -40,5 +41,6 @@ always @ (posedge clk or reset) begin
 end
 
 assign Dout = (ramUnit[Addr]);
+assign RAM_data = (ramUnit[{6'b000000,RAM_addr}]);
 
 endmodule

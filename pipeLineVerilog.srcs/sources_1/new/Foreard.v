@@ -24,12 +24,15 @@ module Forward(R1_, R2_, RwPre_, RwPrePre_, wePre, wePrePre, memtoRegPre, R1_FW,
 input [4:0] R1_, R2_, RwPre_, RwPrePre_;
 input wePre, wePrePre, memtoRegPre;
 output [1:0] R1_FW, R2_FW;
-wire ling;
+wire ling, sec10, sec11, sec20, sec21;
 assign ling = 0;
-detector dct10(R1_, RwPre_, wePre, memtoRegPre, R1_FW[0]);
-detector dct11(R1_, RwPrePre_, wePrePre, ling, R1_FW[1]);
-detector dct20(R2_, RwPre_, wePre, memtoRegPre, R2_FW[0]);
-detector dct21(R2_, RwPrePre_, wePrePre, ling, R2_FW[1]);
+detector dct10(R1_, RwPre_, wePre, memtoRegPre, sec10);
+detector dct11(R1_, RwPrePre_, wePrePre, ling, sec11);
+detector dct20(R2_, RwPre_, wePre, memtoRegPre, sec20);
+detector dct21(R2_, RwPrePre_, wePrePre, ling, sec21);
+assign R1_FW = (sec10) ? 2'b01 : (sec11 ? 2'b10 : 2'b00);
+assign R2_FW = (sec20) ? 2'b01 : (sec21 ? 2'b10 : 2'b00);
+
 endmodule
 
 module detector (R_, RwPre_, we, memtoReg, FW);
