@@ -30,14 +30,11 @@ integer i;
 
 reg [31:0] ramUnit[0:1023];
 
-always @ (posedge clk or posedge reset) begin
-    if (reset) begin
-        for(i = 0;i<1024;i = i + 1) ramUnit[i] = 0;
-    end else begin
+always @ (posedge clk) begin
+
         if (WE) begin
             ramUnit[Addr] = Din;
         end
-    end
 end
 
 assign Dout = (ramUnit[Addr]);

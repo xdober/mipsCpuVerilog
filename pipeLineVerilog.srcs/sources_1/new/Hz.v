@@ -23,7 +23,7 @@
 module Hz(power, clk, sec);
 input clk, power;//输入100MHZ时钟信号
 output sec;//输出200Hz的电平信号
-reg [18:0] count;
+reg [19:0] count;
 always @ ( posedge clk ) begin
     if (power) begin
         count = count + 1;
@@ -32,5 +32,5 @@ end
 initial begin
     count = 0;
 end
-assign sec = (count[18]);
+assign sec = (count[19]);
 endmodule

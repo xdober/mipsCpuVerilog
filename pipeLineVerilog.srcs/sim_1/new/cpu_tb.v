@@ -23,7 +23,7 @@
 module cpu_tb();
 reg clkin, reset, power;
 reg [3:0] RAM_addr;
-wire [31:0] RAM_data, load_use_num, clk_num;
+wire [31:0] RAM_data, load_use_num, clk_num, a0Value;
 completeCPU cpu(clkin, reset, power, a0Value, clk_num, load_use_num, RAM_addr, RAM_data);
 initial begin
     #5000 $finish;

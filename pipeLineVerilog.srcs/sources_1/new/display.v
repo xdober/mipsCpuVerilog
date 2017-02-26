@@ -43,7 +43,8 @@ always @ (posedge clk_100mhz) begin
 end
 assign flash = (flash15[14]);
 //00:a0Value, 01: RAM_data, 10:clk_num, 11:load_use_num
-//assign {a0[7], a0[6], a0[5], a0[4], a0[3], a0[2], a0[1], a0[0]} = (sec1 ? (sec0 ? load_use_num : clk_num) : (sec0? RAM_data : a0Value));
+//assign {a0[7], a0[6], a0[5], a0[4], a0[3], a0[2], a0[1], a0[0]} =(sec1 ? (sec0 ? load_use_num : clk_num) : (sec0? RAM_data : a0Value));
+//assign {a0[7], a0[6], a0[5], a0[4], a0[3], a0[2], a0[1], a0[0]} =(sec1 ? clk_num: a0Value);
 assign {a0[7], a0[6], a0[5], a0[4], a0[3], a0[2], a0[1], a0[0]} = (a0Value);
 
 LED led0(a0[0], display[0]);
