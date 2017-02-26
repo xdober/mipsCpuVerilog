@@ -35,7 +35,7 @@ assign a0Value     = (register[4]);
 assign s2value     = (register[18]);
 assign raValue     = (register[31]);
 
-always @ (negedge clk) begin
+always @ (negedge clk or posedge reset) begin
     if (reset) begin
         for(i = 0; i < 32; i = i+ 1) register[i] = 0;
     end else begin

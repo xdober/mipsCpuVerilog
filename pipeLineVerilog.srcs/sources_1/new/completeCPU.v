@@ -78,7 +78,7 @@ reg[31:0] branch_num, jump_num;
 assign PCFromJump = (EX_j || EX_jal) ? EX_JumpAddr : IF_PCplus4;
 assign PCFromJr = (EX_jr) ? JrAddr : PCFromJump;
 assign PCFromBranch = (branchSuccess) ? EX_gotoLableResult : PCFromJr;
-always @ (posedge clk) begin
+always @ (posedge clk or posedge reset) begin
     if (reset) begin
         PC_reg = 0;
     end else begin
