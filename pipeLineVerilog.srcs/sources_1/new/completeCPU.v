@@ -215,7 +215,7 @@ always @ (posedge clk or posedge reset) begin
         end
     end
 end
-assign clk_num = (clk_num_no_syscall + SyscallAddOne);
+assign clk_num = (clk_num_no_syscall + {31'b0,SyscallAddOne});
 assign load_use_num = (BubbleNum);
 
 
